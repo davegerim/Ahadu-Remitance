@@ -18,7 +18,7 @@ class SupportScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft, color: AppPalette.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/home'),
         ),
         title: Text(
           'Support',

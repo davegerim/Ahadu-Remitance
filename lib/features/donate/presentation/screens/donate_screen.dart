@@ -18,13 +18,7 @@ class DonateScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft, color: AppPalette.textPrimary),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-              return;
-            }
-            context.go('/home');
-          },
+          onPressed: () => context.go('/home'),
         ),
         title: Text(
           'Donate',
@@ -183,7 +177,7 @@ class DonateScreen extends ConsumerWidget {
           ),
           const SizedBox(width: 16),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () => context.go('/donate-campaign'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppPalette.primaryLight,
               foregroundColor: AppPalette.primary,

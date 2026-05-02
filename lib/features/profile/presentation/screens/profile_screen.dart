@@ -79,19 +79,17 @@ class ProfileScreen extends ConsumerWidget {
 
             // Settings List
             _buildSectionHeader(theme, 'Account Settings'),
-            _buildListTile(theme, 'Personal Information', LucideIcons.user),
-            _buildListTile(theme, 'Payment Methods', LucideIcons.creditCard),
-            _buildListTile(theme, 'Security & Privacy', LucideIcons.shield),
+            _buildListTile(context, theme, 'Security & Privacy', LucideIcons.shield, '/security-privacy'),
 
             const SizedBox(height: 32),
             _buildSectionHeader(theme, 'Preferences'),
-            _buildListTile(theme, 'Notifications', LucideIcons.bell),
-            _buildListTile(theme, 'Language', LucideIcons.globe),
+            _buildListTile(context, theme, 'Notifications', LucideIcons.bell, '/settings-notifications'),
+            _buildListTile(context, theme, 'Language', LucideIcons.globe, '/language'),
 
             const SizedBox(height: 32),
             _buildSectionHeader(theme, 'Support'),
-            _buildListTile(theme, 'Help Center', LucideIcons.helpCircle),
-            _buildListTile(theme, 'Terms of Service', LucideIcons.fileText),
+            _buildListTile(context, theme, 'Help Center', LucideIcons.helpCircle, '/help-center'),
+            _buildListTile(context, theme, 'Terms of Service', LucideIcons.fileText, '/terms-of-service'),
 
             const SizedBox(height: 48),
             SizedBox(
@@ -127,7 +125,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildListTile(ThemeData theme, String title, IconData icon) {
+  Widget _buildListTile(BuildContext context, ThemeData theme, String title, IconData icon, String? route) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -151,7 +149,11 @@ class ProfileScreen extends ConsumerWidget {
           color: AppPalette.textSecondary,
           size: 20,
         ),
-        onTap: () {},
+        onTap: () {
+          if (route != null) {
+            context.go(route);
+          }
+        },
       ),
     );
   }

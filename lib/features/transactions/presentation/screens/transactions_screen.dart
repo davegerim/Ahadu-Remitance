@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
 
@@ -27,14 +28,17 @@ class TransactionsScreen extends ConsumerWidget {
         separatorBuilder: (context, index) => const Divider(height: 32),
         itemBuilder: (context, index) {
           final isPositive = index % 3 == 0;
-          return _buildTransactionItem(
-            theme,
-            isPositive ? 'Salary Deposit' : 'Sent to Ethiopia',
-            isPositive ? 'Received' : 'Completed',
-            isPositive ? '+\$4,200.00' : '-\$150.00',
-            'Apr ${25 - index}, 02:15 PM',
-            isPositive ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight,
-            isPositive: isPositive,
+          return GestureDetector(
+            onTap: () => context.go('/transaction-details'),
+            child: _buildTransactionItem(
+              theme,
+              isPositive ? 'Salary Deposit' : 'Sent to Ethiopia',
+              isPositive ? 'Received' : 'Completed',
+              isPositive ? '+\$4,200.00' : '-\$150.00',
+              'Apr ${25 - index}, 02:15 PM',
+              isPositive ? LucideIcons.arrowDownLeft : LucideIcons.arrowUpRight,
+              isPositive: isPositive,
+            ),
           );
         },
       ),

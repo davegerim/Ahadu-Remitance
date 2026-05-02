@@ -18,6 +18,14 @@ import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/donate/presentation/screens/donate_screen.dart';
 import '../../features/cards/presentation/screens/cards_screen.dart';
 import '../../features/support/presentation/screens/support_screen.dart';
+import '../../features/home/presentation/screens/notification_list_screen.dart';
+import '../../features/transactions/presentation/screens/transaction_details_screen.dart';
+import '../../features/donate/presentation/screens/donate_campaign_screen.dart';
+import '../../features/profile/presentation/screens/security_privacy_screen.dart';
+import '../../features/profile/presentation/screens/settings_notifications_screen.dart';
+import '../../features/profile/presentation/screens/language_screen.dart';
+import '../../features/profile/presentation/screens/help_center_screen.dart';
+import '../../features/profile/presentation/screens/terms_of_service_screen.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -94,6 +102,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             builder: (context, state) => const ProfileScreen(),
           ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) => const NotificationListScreen(),
+          ),
+          GoRoute(
+            path: '/transaction-details',
+            builder: (context, state) => const TransactionDetailsScreen(),
+          ),
+          GoRoute(
+            path: '/donate-campaign',
+            builder: (context, state) => const DonateCampaignScreen(),
+          ),
+          GoRoute(
+            path: '/security-privacy',
+            builder: (context, state) => const SecurityPrivacyScreen(),
+          ),
+          GoRoute(
+            path: '/settings-notifications',
+            builder: (context, state) => const SettingsNotificationsScreen(),
+          ),
+          GoRoute(
+            path: '/language',
+            builder: (context, state) => const LanguageScreen(),
+          ),
+          GoRoute(
+            path: '/help-center',
+            builder: (context, state) => const HelpCenterScreen(),
+          ),
+          GoRoute(
+            path: '/terms-of-service',
+            builder: (context, state) => const TermsOfServiceScreen(),
+          ),
         ],
       ),
     ],
@@ -118,7 +158,15 @@ class ScaffoldWithBottomNavBar extends StatelessWidget {
                          location.startsWith('/failure') ||
                          location.startsWith('/donate') ||
                          location.startsWith('/cards') ||
-                         location.startsWith('/support');
+                         location.startsWith('/support') ||
+                         location.startsWith('/notifications') ||
+                         location.startsWith('/transaction-details') ||
+                         location.startsWith('/donate-campaign') ||
+                         location.startsWith('/security-privacy') ||
+                         location.startsWith('/settings-notifications') ||
+                         location.startsWith('/language') ||
+                         location.startsWith('/help-center') ||
+                         location.startsWith('/terms-of-service');
 
     return Scaffold(
       backgroundColor: AppPalette.background,

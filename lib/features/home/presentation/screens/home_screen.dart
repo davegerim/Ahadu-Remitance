@@ -34,7 +34,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 40),
 
               // Recent Transactions
-              _buildRecentTransactions(theme),
+              _buildRecentTransactions(context, theme),
             ],
           ),
         ),
@@ -85,21 +85,24 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppPalette.surface,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppPalette.borderLight, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+          GestureDetector(
+            onTap: () => context.go('/notifications'),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppPalette.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppPalette.borderLight, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(LucideIcons.bell, color: AppPalette.textPrimary, size: 20),
             ),
-            child: const Icon(LucideIcons.bell, color: AppPalette.textPrimary, size: 20),
           ),
         ],
       ),
@@ -310,7 +313,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentTransactions(ThemeData theme) {
+  Widget _buildRecentTransactions(BuildContext context, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
@@ -327,7 +330,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => context.go('/transactions'),
                 child: Text(
                   'See All',
                   style: theme.textTheme.titleMedium?.copyWith(
