@@ -3,109 +3,195 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/features/auth/data/repositories/auth_repository.dart';
+import 'package:ahadu_remittance/features/auth/presentation/providers/auth_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(currentCustomerProvider.notifier).fetchProfile();
+    });
+  }
+
+  Future<void> _handleLogout() async {
+    await ref.read(authRepositoryProvider).logout();
+    ref.read(currentCustomerProvider.notifier).clearCustomer();
+    if (mounted) {
+      context.go('/login');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final customerAsync = ref.watch(currentCustomerProvider);
 
     return Scaffold(
       backgroundColor: AppPalette.background,
       appBar: AppBar(title: const Text('Profile'), elevation: 0),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 24,
-          bottom: 120,
-        ), // Padding for nav bar
-        child: Column(
-          children: [
-            // Profile Header
-            Center(
-              child: Column(
-                children: [
-                  Stack(
+      body: customerAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Failed to load profile',
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(currentCustomerProvider.notifier).fetchProfile();
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        data: (customer) {
+          final name = customer?.fullName ?? 'User';
+          final email = customer?.email ?? '';
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: 120,
+            ),
+            child: Column(
+              children: [
+                Center(
+                  child: Column(
                     children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                              'https://i.pravatar.cc/150?img=11',
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(
-                            color: AppPalette.border,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppPalette.surfaceDark,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppPalette.surface,
-                              width: 2,
+                      Stack(
+                        children: [
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: const DecorationImage(
+                                image: NetworkImage(
+                                  'https://i.pravatar.cc/150?img=11',
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                              border: Border.all(
+                                color: AppPalette.border,
+                                width: 2,
+                              ),
                             ),
                           ),
-                          child: const Icon(
-                            LucideIcons.camera,
-                            size: 16,
-                            color: Colors.white,
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppPalette.surfaceDark,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppPalette.surface,
+                                  width: 2,
+                                ),
+                              ),
+                              child: const Icon(
+                                LucideIcons.camera,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(name, style: theme.textTheme.displayMedium),
+                      const SizedBox(height: 4),
+                      Text(email, style: theme.textTheme.bodyMedium),
+                      if (customer?.phone != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          customer!.phone,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppPalette.textSecondary,
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  Text('Dawit Gerim', style: theme.textTheme.displayMedium),
-                  const SizedBox(height: 4),
-                  Text('dawit@ahadu.com', style: theme.textTheme.bodyMedium),
-                ],
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            // Settings List
-            _buildSectionHeader(theme, 'Account Settings'),
-            _buildListTile(context, theme, 'Security & Privacy', LucideIcons.shield, '/security-privacy'),
-
-            const SizedBox(height: 32),
-            _buildSectionHeader(theme, 'Preferences'),
-            _buildListTile(context, theme, 'Notifications', LucideIcons.bell, '/settings-notifications'),
-            _buildListTile(context, theme, 'Language', LucideIcons.globe, '/language'),
-
-            const SizedBox(height: 32),
-            _buildSectionHeader(theme, 'Support'),
-            _buildListTile(context, theme, 'Help Center', LucideIcons.helpCircle, '/help-center'),
-            _buildListTile(context, theme, 'Terms of Service', LucideIcons.fileText, '/terms-of-service'),
-
-            const SizedBox(height: 48),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => context.go('/login'),
-                icon: const Icon(LucideIcons.logOut, size: 20),
-                label: const Text('Log Out'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppPalette.error,
-                  side: const BorderSide(color: AppPalette.error, width: 1.5),
                 ),
-              ),
+                const SizedBox(height: 48),
+                _buildSectionHeader(theme, 'Account Settings'),
+                _buildListTile(
+                  context,
+                  theme,
+                  'Security & Privacy',
+                  LucideIcons.shield,
+                  '/security-privacy',
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader(theme, 'Preferences'),
+                _buildListTile(
+                  context,
+                  theme,
+                  'Notifications',
+                  LucideIcons.bell,
+                  '/settings-notifications',
+                ),
+                _buildListTile(
+                  context,
+                  theme,
+                  'Language',
+                  LucideIcons.globe,
+                  '/language',
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader(theme, 'Support'),
+                _buildListTile(
+                  context,
+                  theme,
+                  'Help Center',
+                  LucideIcons.helpCircle,
+                  '/help-center',
+                ),
+                _buildListTile(
+                  context,
+                  theme,
+                  'Terms of Service',
+                  LucideIcons.fileText,
+                  '/terms-of-service',
+                ),
+                const SizedBox(height: 48),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _handleLogout,
+                    icon: const Icon(LucideIcons.logOut, size: 20),
+                    label: const Text('Log Out'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppPalette.error,
+                      side: const BorderSide(color: AppPalette.error, width: 1.5),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -125,7 +211,13 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildListTile(BuildContext context, ThemeData theme, String title, IconData icon, String? route) {
+  Widget _buildListTile(
+    BuildContext context,
+    ThemeData theme,
+    String title,
+    IconData icon,
+    String? route,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(

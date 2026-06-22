@@ -1,9 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/features/auth/data/models/register_request.dart';
+import 'package:ahadu_remittance/features/auth/data/repositories/auth_repository.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -29,6 +32,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   String _selectedCountry = 'Ethiopia';
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -48,13 +52,69 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   void _nextStep() {
     if (_currentStep < 2) {
+      if (_currentStep == 0 && !_validatePersonalInfo()) return;
       setState(() {
         _currentStep++;
       });
     } else {
-      // Final Registration Submit
-      context.go('/home');
+      _submitRegistration();
     }
+  }
+
+  bool _validatePersonalInfo() {
+    if (_firstNameController.text.trim().isEmpty ||
+        _lastNameController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty) {
+      _showMessage('Please fill in all personal information fields.');
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _submitRegistration() async {
+    final phone = _phoneController.text.trim();
+    final password = _passwordController.text;
+
+    if (phone.isEmpty || password.isEmpty) {
+      _showMessage('Please enter your phone number and password.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      final request = RegisterRequest(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: '+251$phone',
+        password: password,
+      );
+
+      await repository.register(request);
+
+      if (mounted) {
+        _showMessage('Account created successfully. Please sign in.');
+        context.go('/login');
+      }
+    } on DioException catch (e) {
+      final message = ref.read(authRepositoryProvider).extractErrorMessage(e);
+      _showMessage(message ?? 'Registration failed. Please try again.');
+    } catch (e) {
+      _showMessage('Registration failed. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   void _prevStep() {
@@ -604,7 +664,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: _nextStep,
+        onPressed: _isLoading ? null : _nextStep,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppPalette.primary,
           foregroundColor: Colors.white,
@@ -613,13 +673,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        child: _isLoading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }
