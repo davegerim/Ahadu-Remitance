@@ -1,5 +1,7 @@
+import '../config/env.dart';
+
 class Endpoints {
-  static const String baseUrl = 'http://10.20.0.45:7034/api/v1';
+  static String get baseUrl => Env.apiBaseUrl;
 
   // Auth
   static const String login = '/auth/login';

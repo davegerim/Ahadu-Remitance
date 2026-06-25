@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/core/security/device_integrity_guard.dart';
 
 class ReviewTransferScreen extends ConsumerWidget {
   const ReviewTransferScreen({super.key});
@@ -160,8 +161,11 @@ class ReviewTransferScreen extends ConsumerWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    context.go('/success');
+                  onPressed: () async {
+                    if (!await ensureDeviceSecure(ref, context)) return;
+                    if (context.mounted) {
+                      context.go('/success');
+                    }
                   },
                   child: const Text('Confirm & Send'),
                 ),

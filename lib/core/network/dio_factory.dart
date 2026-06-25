@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ahadu_remittance/core/network/auth_interceptor.dart';
 import 'package:ahadu_remittance/core/storage/token_storage.dart';
@@ -20,14 +21,16 @@ final dioProvider = Provider<Dio>((ref) {
   );
 
   dio.interceptors.add(AuthInterceptor(tokenStorage));
-  dio.interceptors.add(LogInterceptor(
-    request: true,
-    requestHeader: true,
-    requestBody: true,
-    responseHeader: true,
-    responseBody: true,
-    error: true,
-  ));
+  if (kDebugMode) {
+    dio.interceptors.add(LogInterceptor(
+      request: true,
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+    ));
+  }
 
   return dio;
 });

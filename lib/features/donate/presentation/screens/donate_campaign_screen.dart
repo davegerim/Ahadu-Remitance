@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/core/security/device_integrity_guard.dart';
 
 class DonateCampaignScreen extends ConsumerWidget {
   const DonateCampaignScreen({super.key});
@@ -147,10 +148,12 @@ class DonateCampaignScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                           const SnackBar(content: Text('Donation processing...')),
-                         );
+                      onPressed: () async {
+                        if (!await ensureDeviceSecure(ref, context)) return;
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Donation processing...')),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppPalette.primary,

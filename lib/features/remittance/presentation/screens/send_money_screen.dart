@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/core/security/device_integrity_guard.dart';
 
 class SendMoneyScreen extends ConsumerStatefulWidget {
   const SendMoneyScreen({super.key});
@@ -99,6 +100,18 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
       });
     } else {
       context.go('/home');
+    }
+  }
+
+  Future<void> _handleConfirmAndSend() async {
+    if (!await ensureDeviceSecure(ref, context)) return;
+    _nextStep();
+  }
+
+  Future<void> _handlePayNow() async {
+    if (!await ensureDeviceSecure(ref, context)) return;
+    if (mounted) {
+      context.go('/success');
     }
   }
 
@@ -922,7 +935,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           width: double.infinity,
           height: 60,
           child: ElevatedButton(
-            onPressed: _nextStep,
+            onPressed: _handleConfirmAndSend,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppPalette.primary,
               foregroundColor: Colors.white,
@@ -1052,9 +1065,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           width: double.infinity,
           height: 60,
           child: ElevatedButton(
-            onPressed: () {
-              context.go('/success');
-            },
+            onPressed: _handlePayNow,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppPalette.primary,
               foregroundColor: Colors.white,

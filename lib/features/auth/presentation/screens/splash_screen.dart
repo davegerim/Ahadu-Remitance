@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/core/security/device_integrity_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -34,10 +35,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     _controller.forward().then((_) {
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
-          context.go('/walkthrough');
+          _navigateAfterSplash();
         }
       });
     });
+  }
+
+  Future<void> _navigateAfterSplash() async {
+    final result = await ref.read(deviceIntegrityServiceProvider).checkIntegrity();
+    ref.invalidate(deviceIntegrityProvider);
+    await ref.read(deviceIntegrityProvider.future);
+
+    if (!mounted) return;
+
+    if (result.isCompromised) {
+      context.go('/compromised-device');
+      return;
+    }
+
+    context.go('/walkthrough');
   }
 
   @override

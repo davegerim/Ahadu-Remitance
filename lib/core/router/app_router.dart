@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/walkthrough_screen.dart';
+import '../../features/auth/presentation/screens/compromised_device_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
@@ -27,6 +28,7 @@ import '../../features/profile/presentation/screens/language_screen.dart';
 import '../../features/profile/presentation/screens/help_center_screen.dart';
 import '../../features/profile/presentation/screens/terms_of_service_screen.dart';
 import 'package:ahadu_remittance/core/theme/colors.dart';
+import 'package:ahadu_remittance/core/security/device_integrity_provider.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -35,10 +37,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/splash',
+    redirect: (context, state) {
+      final location = state.matchedLocation;
+      if (location == '/compromised-device') {
+        return null;
+      }
+
+      final integrity = ref.read(deviceIntegrityProvider);
+      return integrity.when(
+        data: (result) => result.isCompromised ? '/compromised-device' : null,
+        loading: () => null,
+        error: (_, _) => '/compromised-device',
+      );
+    },
     routes: [
       GoRoute(
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/compromised-device',
+        builder: (context, state) => const CompromisedDeviceScreen(),
       ),
       GoRoute(
         path: '/walkthrough',

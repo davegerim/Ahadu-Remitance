@@ -38,8 +38,21 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+build/app/outputs/symbols/
+
+# Android local SDK paths (machine-specific)
+android/local.properties
 
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Release signing secrets (see android/key.properties.example)
+/android/key.properties
+**/*.keystore
+**/*.jks
+
+# API configuration (see .env.example)
+.env
+lib/core/config/env.g.dart

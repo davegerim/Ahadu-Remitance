@@ -1,0 +1,12 @@
+# Copy this file to android/key.properties and fill in your production values.
+# Never commit key.properties or the keystore file to version control.
+#
+# Generate a release keystore (run once, store the file securely):
+#   keytool -genkey -v -keystore ahadu-release.keystore -alias ahadu-key -keyalg RSA -keysize 2048 -validity 10000
+#
+# storeFile path is relative to android/app/ (this module's build.gradle.kts).
+
+storePassword=ahadu-dev-local
+keyPassword=ahadu-dev-local
+keyAlias=ahadu-key
+storeFile=../ahadu-release.keystore
